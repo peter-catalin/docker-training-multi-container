@@ -1,0 +1,29 @@
+language: generic
+
+# Tell Travis that we need sudo privileges
+sudo: required
+
+# Tell Travis that we need a copy of Docker ready to go
+services:
+  - docker
+
+before_install:
+  - docker build -t petercatalin/docker-training-multi-container -f ./client/Dockerfile.dev ./client
+
+# This is the primary test running section
+# If any of the scripts executed here exit with a non zero code Travis CI will assume our build failed.
+script:
+  - docker run -e CI=true petercatalin/docker-training-multi-container npm run test
+
+# Here we need to build the production images of our sub-projects and then push the resulting images to DockerHub.
+after_success:
+  - docker build -t petercatalin/docker-training-multi-client ./client
+  - docker build -t petercatalin/docker-training-multi-nginx ./nginx
+  - docker build -t petercatalin/docker-training-multi-server ./server
+  - docker build -t petercatalin/docker-training-multi-worker ./worker
+  # The images are now built, push them to DockerHub.
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push petercatalin/docker-training-multi-client
+  - docker push petercatalin/docker-training-multi-nginx
+  - docker push petercatalin/docker-training-multi-server
+  - docker push petercatalin/docker-training-multi-worker
