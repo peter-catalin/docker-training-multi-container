@@ -22,7 +22,7 @@ after_success:
   - docker build -t petercatalin/docker-training-multi-server ./server
   - docker build -t petercatalin/docker-training-multi-worker ./worker
   # The images are now built, push them to DockerHub.
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - echo "$DOCKER_PASSWORD"|docker login -u "$DOCKER_ID" --password-stdin
   - docker push petercatalin/docker-training-multi-client
   - docker push petercatalin/docker-training-multi-nginx
   - docker push petercatalin/docker-training-multi-server
